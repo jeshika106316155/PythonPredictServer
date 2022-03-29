@@ -47,7 +47,8 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
             while True:
                 try:
                     data = connection.recv(300000) #193018,191144
-                    print('received "%s"' % data)
+                    print('received')
+                    #print('received "%s"' % data)
                     if not data or len(data)==0:
                         print('no data')
                         break
@@ -80,11 +81,23 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
                             crop_imgExDims = np.expand_dims(crop_img, axis=0)
                             imgs.append(crop_imgExDims)
                             cv2.imwrite('C:/Users/Hsulab32/Downloads/PredictPyhtonServer/CropImg/'+str(h2)+'_'+str(w2)+'.jpg', crop_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
-                    
-                arr1 = [1,2,3]
-                arr2 = [4,5,6]
-                someVar = 8
-                data = json.dumps({"a": arr1, "b": arr2, "c": someVar})
+                
+                predict=new_model_GNB.predict(np.vstack(imgs), batch_size=48)
+                predict=predict.tolist()
+                resGNB=[result.index(max(result)) for result in predict]
+                predict=new_model_GPB.predict(np.vstack(imgs), batch_size=48)
+                predict=predict.tolist()
+                resGPB = [result.index(max(result)) for result in predict]
+                predict=new_model_GPC.predict(np.vstack(imgs), batch_size=48)
+                predict=predict.tolist()
+                resGPC = [result.index(max(result)) for result in predict]
+                predict=new_model_chainPredict.predict(np.vstack(imgs), batch_size=48)
+                predict=predict.tolist()
+                resChain = [result.index(max(result)) for result in predict]
+                predict=new_model_Yeast.predict(np.vstack(imgs), batch_size=48)
+                predict=predict.tolist()
+                resYeast = [result.index(max(result)) for result in predict]
+                data = json.dumps({"GNB": resGNB, "GPB": resGPB, "GPC": resGPC, "Chain":resChain, "Yeast":resYeast})
                 connection.send(data.encode())
                 
             print('received, yay!') 
@@ -110,13 +123,13 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
             #         imgs.append(crop_img)
             #         #cv2.imwrite('C:/Users/Hsulab32/Downloads/PredictPyhtonServer/CropImg/'+str(h2)+'_'+str(w2)+'.jpg', crop_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
             
-            predict=new_model_GNB.predict(np.vstack(imgs), batch_size=48)
-            predict=predict.tolist()
-            resultGNB=[result.index(max(result)) for result in predict]
-            arr1 = [1,2,3]
-            arr2 = [4,5,6]
-            someVar = 9
-            data = json.dumps({"a": resultGNB, "b": arr2, "c": someVar})
-            connection.send(data.encode())
+            #predict=new_model_GNB.predict(np.vstack(imgs), batch_size=48)
+            #predict=predict.tolist()
+            # #resultGNB=[result.index(max(result)) for result in predict]
+            # arr1 = [1,2,3]
+            # arr2 = [4,5,6]
+            # someVar = 9
+            # data = json.dumps({"a": resultGNB, "b": arr2, "c": someVar})
+            # connection.send(data.encode())
             connection.close()
             print("finish connection")
