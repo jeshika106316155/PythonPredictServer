@@ -55,8 +55,14 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
                     
                     #save the image
                     #print("wanna save")
-                    with open('tst.jpg', 'wb') as img:
-                        img.write(data)
+                    #img_data = cv2.imread(data)
+                    #read image as an numpy array
+                    image = np.asarray(bytearray(data))
+                    # use imdecode function
+                    img_data = cv2.imdecode(image, cv2.IMREAD_COLOR)
+                    cv2.imwrite('tst.jpg', img_data)
+                    #with open('tst.jpg', 'wb') as img:
+                        #img.write(data)
                         #print("write finish")
                     
                 finally:
@@ -76,28 +82,30 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
                             x=w2*200
                             crop_img = img_data[y:y+h, x:x+w]
                             crop_img = cv2.resize(crop_img, (200, 200), interpolation=cv2.INTER_AREA)
-                            crop_img = np.array(crop_img, dtype='float32')
+                            #crop_img = np.array(crop_img, dtype='float32')
                             crop_imgExDims = crop_img / 255 #normalization
-                            crop_imgExDims = np.expand_dims(crop_img, axis=0)
+                            #crop_imgExDims = np.expand_dims(crop_img, axis=0)
                             imgs.append(crop_imgExDims)
+                            
                             cv2.imwrite('C:/Users/Hsulab32/Downloads/PredictPyhtonServer/CropImg/'+str(h2)+'_'+str(w2)+'.jpg', crop_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
-                
-                predict=new_model_GNB.predict(np.vstack(imgs), batch_size=48)
+                imgs=np.array(imgs, dtype='float32')
+                print(imgs.shape)
+                predict=new_model_GNB.predict(imgs, batch_size=48)
                 predict=predict.tolist()
                 resGNB=[result.index(max(result)) for result in predict]
-                predict=new_model_GPB.predict(np.vstack(imgs), batch_size=48)
+                predict=new_model_GPB.predict(imgs, batch_size=48)
                 predict=predict.tolist()
                 resGPB = [result.index(max(result)) for result in predict]
-                predict=new_model_GPC.predict(np.vstack(imgs), batch_size=48)
+                predict=new_model_GPC.predict(imgs, batch_size=48)
                 predict=predict.tolist()
                 resGPC = [result.index(max(result)) for result in predict]
-                predict=new_model_chainPredict.predict(np.vstack(imgs), batch_size=48)
+                predict=new_model_chainPredict.predict(imgs, batch_size=48)
                 predict=predict.tolist()
                 resChain = [result.index(max(result)) for result in predict]
-                predict=new_model_Yeast.predict(np.vstack(imgs), batch_size=48)
+                predict=new_model_Yeast.predict(imgs, batch_size=48)
                 predict=predict.tolist()
                 resYeast = [result.index(max(result)) for result in predict]
-                data = json.dumps({"GNB": resGNB, "GPB": resGPB, "GPC": resGPC, "Chain":resChain, "Yeast":resYeast})
+                data = json.dumps({"GNB": resGNB, "GPB": resGPB, "GPC": resGPC, "GPCinChain":resChain, "Yeast":resYeast})
                 connection.send(data.encode())
                 
             print('received, yay!') 
