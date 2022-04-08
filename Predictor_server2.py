@@ -48,28 +48,18 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
                 try:
                     data = connection.recv(300000) #193018,191144
                     print('received')
-                    #print('received "%s"' % data)
                     if not data or len(data)==0:
                         print('no data')
                         break
                     
-                    #save the image
-                    #print("wanna save")
-                    #img_data = cv2.imread(data)
-                    #read image as an numpy array
                     image = np.asarray(bytearray(data))
                     # use imdecode function
                     img_data = cv2.imdecode(image, cv2.IMREAD_COLOR)
                     cv2.imwrite('tst.jpg', img_data)
-                    #with open('tst.jpg', 'wb') as img:
-                        #img.write(data)
-                        #print("write finish")
                     
                 finally:
-                    # Clean up the connection
                     #read and crop image to 200 x 200
                     imgs=[]
-                    #print("start imread")
                     img_data = cv2.imread("tst.jpg")
                     print(img_data.shape);
                     y=0
@@ -82,9 +72,7 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
                             x=w2*200
                             crop_img = img_data[y:y+h, x:x+w]
                             crop_img = cv2.resize(crop_img, (200, 200), interpolation=cv2.INTER_AREA)
-                            #crop_img = np.array(crop_img, dtype='float32')
                             crop_imgExDims = crop_img / 255 #normalization
-                            #crop_imgExDims = np.expand_dims(crop_img, axis=0)
                             imgs.append(crop_imgExDims)
                             
                             cv2.imwrite('C:/Users/Hsulab32/Downloads/PredictPyhtonServer/CropImg/'+str(h2)+'_'+str(w2)+'.jpg', crop_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
@@ -111,33 +99,5 @@ with tf.device(tf.DeviceSpec(device_type="GPU")):
             print('received, yay!') 
                 
         finally:
-            # # Clean up the connection
-            # #read and crop image to 200 x 200
-            # imgs=[]
-            # img_data = cv2.imread("tst.jpg")
-            # y=0
-            # x=0
-            # h=200
-            # w=200
-            # for h2 in range(img_data.shape[0]//h):
-            #     for w2 in range(img_data.shape[1]//w):
-            #         y=h2*200
-            #         x=w2*200
-            #         crop_img = img[y:y+h, x:x+w]
-            #         crop_img = cv2.resize(crop_img, (200, 200), interpolation=cv2.INTER_AREA)
-            #         crop_img = np.array(crop_img, dtype='float32')
-            #         crop_img = crop_img / 255 #normalization
-            #         crop_img = np.expand_dims(crop_img, axis=0)
-            #         imgs.append(crop_img)
-            #         #cv2.imwrite('C:/Users/Hsulab32/Downloads/PredictPyhtonServer/CropImg/'+str(h2)+'_'+str(w2)+'.jpg', crop_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
-            
-            #predict=new_model_GNB.predict(np.vstack(imgs), batch_size=48)
-            #predict=predict.tolist()
-            # #resultGNB=[result.index(max(result)) for result in predict]
-            # arr1 = [1,2,3]
-            # arr2 = [4,5,6]
-            # someVar = 9
-            # data = json.dumps({"a": resultGNB, "b": arr2, "c": someVar})
-            # connection.send(data.encode())
             connection.close()
             print("finish connection")
