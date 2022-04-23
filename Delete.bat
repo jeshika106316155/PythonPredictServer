@@ -1,0 +1,2 @@
+forfiles -p "C:\Users\Hsulab32\Downloads\PredictorWeb-main\PredictorWeb\imgTemp" -s -m *.* /C "cmd /c del @path"
+forfiles -p "C:\Users\Hsulab32\Downloads\PredictPyhtonServer\CropImg" -s -m *.* /C "cmd /c del @path"
